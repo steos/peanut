@@ -49,14 +49,14 @@ class Descriptor {
 		$this->properties[$name] = $value;
 	}
 	
-	function getPeanut() {
+	function getPeanut(Context $cx) {
 		if ($this->instance != null && $this->type == self::TYPE_SINGLETON) {
 			return $this->instance;
 		}
 		$refClass = new \ReflectionClass($this->class);
 		try {
-			$this->instance = $this->createInstance($refClass);
-			$this->populate($refClass);
+			$this->instance = $this->createInstance($refClass, $cx);
+			$this->populate($cx);
 		}
 		catch (\ReflectionException $e) {
 			throw new PeanutException($e->getMessage());
@@ -64,7 +64,7 @@ class Descriptor {
 		return $this->instance;
 	}
 	
-	private function populate() {
+	private function populate(Context $cx) {
 		$className = get_class($this->instance);
 		$class = new \ReflectionClass($className);
 		foreach ($this->properties as $name => $value) {
@@ -74,14 +74,11 @@ class Descriptor {
 			}
 			$prop = $class->getProperty($name);
 			$prop->setAccessible(true);
-			if ($value instanceof Descriptor) {
-				$value = $value->getPeanut();
-			}
-			$prop->setValue($this->instance, $value);
+			$prop->setValue($this->instance, $this->resolveValue($value, $cx));
 		}
 	}
 	
-	private function createInstance(\ReflectionClass $class) {
+	private function createInstance(\ReflectionClass $class, Context $cx) {
 		$method = null;
 		if ($this->factoryMethod == null) {
 			$method = $class->getConstructor();
@@ -118,12 +115,8 @@ class Descriptor {
 
 		$params = array();
 		foreach ($this->params as &$param) {
-			if ($param instanceof Descriptor) {
-				$params[] = $param->getPeanut();
-			}
-			else {
-				$params[] = $param;
-			}
+			$value = $this->resolveValue($param, $cx);
+			$params[] = $value;
 		}
 		
 		if ($this->factoryMethod == null) {
@@ -132,6 +125,24 @@ class Descriptor {
 		else {
 			return $method->invokeArgs(null, $params);	
 		}
+	}
+	
+	private function resolveValue($value, Context $cx) {
+		if ($value instanceof Descriptor) {
+			$val = $value->getPeanut($cx);
+		}
+		else if ($value instanceof DescriptorRef) {
+			$val = $cx[$value->getId()];
+		}
+		else {
+			$val = $value;
+			if (is_array($val)) {
+				foreach ($val as &$v) {
+					$v = $this->resolveValue($v, $cx);
+				}
+			}
+		}
+		return $val;
 	}
 	
 	function getId() {

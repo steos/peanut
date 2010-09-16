@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<peanuts>
+	<peanut id="foo" class="peanut\Sample1">
+		<property name="bar">
+			<value>foobar</value>
+		</property>
+	</peanut>
+	
+	<peanut id="bar" class="peanut\Sample2">
+		<param><ref id="foo"/></param>
+	</peanut>
+	
+	<peanut id="baz" class="peanut\Sample1">
+		<property name="bar">
+			<map>
+				<entry key="foo">lorem</entry>
+				<entry key="bar">ipsum</entry>
+			</map>
+		</property>
+	</peanut>
+	
+	<peanut id="nested" class="peanut\Sample1">
+		<property name="bar">
+			<list>
+				<value>foobar</value>
+				<ref id="foo"/>
+				<list>
+					<value>lorem</value>
+					<value>ipsum</value>
+				</list>
+				<map>
+					<entry key="lorem">ipsum</entry>
+					<entry key="foo"><ref id="foo"/></entry>
+				</map>
+			</list>
+		</property>
+	</peanut>
+	
+	<peanut id="lorem" class="peanut\Sample3" factory="factory"/>
+	
+	<peanut id="ipsum" class="peanut\Sample4" factory="factory">
+		<property name="bar">foobar</property>
+	</peanut>
+	
+</peanuts>
