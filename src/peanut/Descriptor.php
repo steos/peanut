@@ -49,107 +49,31 @@ class Descriptor {
 		$this->properties[$name] = $value;
 	}
 	
-	function getPeanut(Context $cx) {
-		if ($this->instance != null && $this->type == self::TYPE_SINGLETON) {
-			return $this->instance;
-		}
-		$refClass = new \ReflectionClass($this->class);
-		try {
-			$this->instance = $this->createInstance($refClass, $cx);
-			$this->populate($cx);
-		}
-		catch (\ReflectionException $e) {
-			throw new PeanutException($e->getMessage());
-		}
-		return $this->instance;
-	}
-	
-	private function populate(Context $cx) {
-		$className = get_class($this->instance);
-		$class = new \ReflectionClass($className);
-		foreach ($this->properties as $name => $value) {
-			if (!$class->hasProperty($name)) {
-				throw new PeanutException(
-					"unknown property \"$name\" in class \"$className\"");
-			}
-			$prop = $class->getProperty($name);
-			$prop->setAccessible(true);
-			$prop->setValue($this->instance, $this->resolveValue($value, $cx));
-		}
-	}
-	
-	private function createInstance(\ReflectionClass $class, Context $cx) {
-		$method = null;
-		if ($this->factoryMethod == null) {
-			$method = $class->getConstructor();
-			if ($method == null) {
-				return $class->newInstance();
-			}
-		}
-		else {
-			if (!$class->hasMethod($this->factoryMethod)) {
-				throw new PeanutException("method \"$this->factoryMethod\" " . 
-					"is undefined in class \"{$class->getName()}\"");
-			}
-			$method = $class->getMethod($this->factoryMethod);
-			if (!$method->isStatic()) {
-				throw new PeanutException("cannot use non-static method " . 
-					"\"$this->factoryMethod\" as factory");
-			}
-		}
-		
-		$numReqParams = $method->getNumberOfRequiredParameters();
-		$numParams = $method->getNumberOfParameters();
-		$numPeanutParams = count($this->params);
-		if ($numPeanutParams < $numReqParams || $numPeanutParams > $numParams) {
-			throw new PeanutException(sprintf(
-				'method "%s" takes between %d and %d parameters but ' . 
-				'the descriptor specifies %d parameters', 
-				$this->factoryMethod, 
-				$numReqParams, $numParams, $numPeanutParams));
-		}
-		
-		if (!$method->isPublic()) {
-			$method->setAccessible(true);
-		}
-
-		$params = array();
-		foreach ($this->params as &$param) {
-			$value = $this->resolveValue($param, $cx);
-			$params[] = $value;
-		}
-		
-		if ($this->factoryMethod == null) {
-			return $class->newInstanceArgs($params);
-		}
-		else {
-			return $method->invokeArgs(null, $params);	
-		}
-	}
-	
-	private function resolveValue($value, Context $cx) {
-		if ($value instanceof Descriptor) {
-			$val = $value->getPeanut($cx);
-		}
-		else if ($value instanceof DescriptorRef) {
-			$val = $cx[$value->getId()];
-		}
-		else {
-			$val = $value;
-			if (is_array($val)) {
-				foreach ($val as &$v) {
-					$v = $this->resolveValue($v, $cx);
-				}
-			}
-		}
-		return $val;
-	}
-	
 	function getId() {
 		return $this->id;
 	}
 	
 	function getClass() {
 		return $this->class;
+	}
+	
+	function getType() {
+		return $this->type;
+	}
+	
+	function getFactoryMethod() {
+		return $this->factoryMethod;
+	}
+	
+	function getParamCount() {
+		return count($this->params);
+	}
+	
+	function getParams() {
+		return $this->params;
+	}
+	
+	function getProperties() {
+		return $this->properties;
 	}
 }

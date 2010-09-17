@@ -17,28 +17,46 @@
 namespace peanut;
 
 abstract class Context implements \ArrayAccess, \IteratorAggregate {
-	protected $peanuts;
+	private $peanuts;
+	protected $descriptors;
 	function __construct() {
 		$this->peanuts = array();
+		$this->descriptors = array();
 	}
 	function offsetGet($name) {
-		$ds = @$this->peanuts[$name];
+		$ds = @$this->descriptors[$name];
 		if ($ds != null) {
-			return $ds->getPeanut($this);
+			if ($ds->getType() == Descriptor::TYPE_SINGLETON 
+				&& isset($this->peanuts[$name])) {
+				return $this->peanuts[$name];
+			}
+			$factory = new Factory($ds, $this);
+			$peanut = $factory->createPeanut($ds, $this);
+			if ($ds->getType() == Descriptor::TYPE_SINGLETON) {
+				$this->peanuts[$ds->getId()] = $peanut;
+			}
+			return $peanut;
 		}
 		return null;
 	}
 	function offsetSet($name, $value) {
-		$this->peanuts[$name] = $value;
+		if ($value instanceof Descriptor) {
+			$this->descriptors[$value->getId()] = $value;
+		}
+		else {
+			throw new InvalidArgumentException(
+				"expected Descriptor instance");
+		}
 	}
 	function offsetUnset($name) {
+		unset($this->descriptors[$name]);
 		unset($this->peanuts[$name]);
 	}
 	function offsetExists($name) {
-		return array_key_exists($name, $this->properties);
+		return array_key_exists($name, $this->descriptors);
 	}
 	function getIterator() {
-		return new ArrayIterator($this->peanuts);
+		return new ArrayIterator($this->descriptors);
 	}
 	function __get($name) {
 		return $this[$name];

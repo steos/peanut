@@ -41,8 +41,8 @@ class XmlContext extends Context {
 			if ($child->tagName != 'peanut') {
 				throw new PeanutException("unexpected tag \"$child->tagName\"");
 			}
-			$peanut = $this->parsePeanutNode($child);
-			$this->peanuts[$peanut->getId()] = $peanut;
+			$ds = $this->parsePeanutNode($child);
+			$this->descriptors[$ds->getId()] = $ds;
 		}
 	}
 	
