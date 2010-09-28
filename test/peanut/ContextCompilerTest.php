@@ -47,17 +47,31 @@ class ContextCompilerTest extends TestCase {
 
 PHP;
 		
-		$str = $this->readStreamContent($stream);
+		$str = stream_get_contents($stream, -1, 0);
 		
 		$this->assertEquals($ex, $str);
 	}
 	
-	private function readStreamContent($stream) {
-		fseek($stream, 0);
-		$str = '';
-		while (!feof($stream)) {
-			$str .= fgets($stream);
-		}
-		return $str;
-	} 
+	function testPrototypes() {
+		$cx = new XmlContext("$this->resourceDir/sample2.xml");
+		$cx->load();
+		$compiler = new ContextCompiler($cx);
+		$stream = fopen('php://temp', 'w');
+		$compiler->compile($stream);
+		
+		$ex = <<<PHP
+\$foo_0 = new peanut\Sample1();
+\$foo_0->setBar('foobar');
+\$foo_1 = new peanut\Sample1();
+\$foo_1->setBar('foobar');
+\$bar = new peanut\Sample2(\$foo_1);
+\$foo_2 = new peanut\Sample1();
+\$foo_2->setBar('foobar');
+\$foo_3 = new peanut\Sample1();
+\$foo_3->setBar('foobar');
+\$baz = new peanut\Sample2(array(0 => \$foo_2, 1 => 'bar', 2 => \$foo_3));
+
+PHP;
+		$this->assertEquals($ex, stream_get_contents($stream, -1, 0));
+	}
 }

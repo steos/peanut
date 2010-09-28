@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<peanuts>
+	<peanut id="foo" class="peanut\Sample1" type="prototype">
+		<property name="bar">foobar</property>
+	</peanut>
+	<peanut id="bar" class="peanut\Sample2">
+		<param><ref id="foo"/></param>
+	</peanut>
+	<peanut id="baz" class="peanut\Sample2">
+		<param>
+			<list>
+				<ref id="foo"/>
+				<value>bar</value>
+				<ref id="foo"/>
+			</list>
+		</param>
+	</peanut>
+</peanuts>

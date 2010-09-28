@@ -103,8 +103,8 @@ class ContextCompiler {
 				return '$' . $ds->getId();
 			}
 			else {
-				$name = $this->compilePeanut($ds);
-				return "\$$name";
+				$node = $this->compilePeanut($ds);
+				return "\$$node->name";
 			}
 		}
 		else if (is_array($value)) {
@@ -145,6 +145,10 @@ class ContextCompiler {
 		$num = @$this->identifiers[$baseName];
 		if ($num == null) {
 			$num = 0;
+			$this->identifiers[$baseName] = 0;
+		}
+		else {
+			$num = $this->identifiers[$baseName];		
 		}
 		$this->identifiers[$baseName]++;
 		return "{$baseName}_$num";
