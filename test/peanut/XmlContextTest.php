@@ -10,7 +10,7 @@ require_once 'peanut/samples.php';
 
 class XmlContextTest extends TestCase {
 	function testSample1() {
-		$cx = new XmlCOntext($this->resourceDir . '/sample1.xml');
+		$cx = new XmlContext($this->resourceDir . '/sample1.xml');
 		$cx->load();
 		
 		$this->assertEquals('foobar', $cx->foo->getBar());
