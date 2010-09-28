@@ -56,9 +56,12 @@ abstract class Context implements \ArrayAccess, \IteratorAggregate {
 		return array_key_exists($name, $this->descriptors);
 	}
 	function getIterator() {
-		return new ArrayIterator($this->descriptors);
+		return new \ArrayIterator($this->descriptors);
 	}
 	function __get($name) {
 		return $this[$name];
+	}
+	function getDescriptor($name) {
+		return @$this->descriptors[$name];
 	}
 }
