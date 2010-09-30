@@ -11,8 +11,7 @@ require_once 'peanut/samples.php';
 class XmlContextTest extends TestCase {
 	function testSample1() {
 		$cx = XmlContext::fromFile($this->resourceDir . '/sample1.xml');
-		$cx->load();
-		
+
 		$this->assertEquals('foobar', $cx->foo->getBar());
 		
 		$this->assertEquals($cx->foo, $cx->bar->getBar());
@@ -32,5 +31,16 @@ class XmlContextTest extends TestCase {
 		
 		$this->assertEquals('foobar', $cx->ipsum->getBar());
 		
+	}
+	
+	function testAnonymousPeanuts() {
+		$xml = <<<XML
+<peanuts>
+	<peanut class="peanut\Sample1"/>
+</peanuts>
+XML;
+		$cx = XmlContext::fromString($xml);
+		$iter = $cx->getIterator();
+		$this->assertEquals(1, $iter->count());
 	}
 }

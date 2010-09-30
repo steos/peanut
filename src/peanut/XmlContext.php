@@ -43,12 +43,12 @@ class XmlContext extends Context {
 	function __construct(\DOMDocument $dom) {
 		parent::__construct();
 		$this->dom = $dom;
+		$this->load();
 	}
 	
-	function load() {
+	private function load() {
 		if ($this->dom->documentElement->tagName != 'peanuts') {
-			throw new PeanutException(
-				"\"$this->file\" doesn't look like a peanut context");
+			throw new PeanutException("this doesn't look like a peanut context");
 		} 
 		$children = $this->dom->documentElement->childNodes;
 		for ($i = 0; $i < $children->length; ++$i) {

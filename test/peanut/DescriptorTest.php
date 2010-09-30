@@ -25,11 +25,13 @@ require_once 'peanut/TestCase.php';
 require_once 'peanut/PeanutException.php';
 require_once 'peanut/samples.php';
 
+class DummyContext extends Context {}
+
 class DescriptorTest extends TestCase {
 	private $context;
 	function setUp() {
 		parent::setUp();
-		$this->context = new XmlContext(new \DOMDocument());
+		$this->context = new DummyContext();
 	}
 	function getPeanut($id) {
 		return $this->context[$id];
