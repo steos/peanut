@@ -29,7 +29,7 @@ class DescriptorTest extends TestCase {
 	private $context;
 	function setUp() {
 		parent::setUp();
-		$this->context = new XmlContext(null);
+		$this->context = new XmlContext(new \DOMDocument());
 	}
 	function getPeanut($id) {
 		return $this->context[$id];

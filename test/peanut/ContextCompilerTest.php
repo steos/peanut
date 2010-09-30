@@ -26,7 +26,7 @@ require_once 'peanut/TestCase.php';
 
 class ContextCompilerTest extends TestCase {
 	function testSample1() {
-		$cx = new XmlContext($this->resourceDir . '/sample1.xml');
+		$cx = XmlContext::fromFile($this->resourceDir . '/sample1.xml');
 		$cx->load();
 		
 		$compiler = new ContextCompiler($cx);
@@ -53,7 +53,7 @@ PHP;
 	}
 	
 	function testPrototypes() {
-		$cx = new XmlContext("$this->resourceDir/sample2.xml");
+		$cx = XmlContext::fromFile("$this->resourceDir/sample2.xml");
 		$cx->load();
 		$compiler = new ContextCompiler($cx);
 		$stream = fopen('php://temp', 'w');

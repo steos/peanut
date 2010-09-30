@@ -21,21 +21,36 @@ class XmlContext extends Context {
 	private $version;
 	private $encoding;
 	
-	function __construct($file, $version = '1.0', $encoding = 'UTF-8') {
+	static function fromFile($file, $version = '1.0', $enc = 'UTF-8') {
+		$dom = new \DOMDocument($version, $enc);
+		$dom->load($file, self::LIBXML_FLAGS());
+		return new self($dom);
+	}
+	
+	static function fromString($xml, $version = '1.0', $enc = 'UTF-8') {
+		$dom = new \DOMDocument($version, $enc);
+		$dom->loadXML($xml, self::LIBXML_FLAGS());
+		return new self($dom);
+	}
+	
+	/* 
+	 * workaround because PHP doesn't allow expressions as const values
+	 */
+	static private function LIBXML_FLAGS() {
+		return LIBXML_NOBLANKS | LIBXML_COMPACT; 
+	}
+	
+	function __construct(\DOMDocument $dom) {
 		parent::__construct();
-		$this->file = $file;
-		$this->version = $version;
-		$this->encoding = $encoding;
+		$this->dom = $dom;
 	}
 	
 	function load() {
-		$dom = new \DOMDocument($this->version, $this->encoding);
-		$dom->load($this->file, LIBXML_NOBLANKS | LIBXML_COMPACT);
-		if ($dom->documentElement->tagName != 'peanuts') {
+		if ($this->dom->documentElement->tagName != 'peanuts') {
 			throw new PeanutException(
 				"\"$this->file\" doesn't look like a peanut context");
 		} 
-		$children = $dom->documentElement->childNodes;
+		$children = $this->dom->documentElement->childNodes;
 		for ($i = 0; $i < $children->length; ++$i) {
 			$child = $children->item($i);
 			if ($child->tagName != 'peanut') {
