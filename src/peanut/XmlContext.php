@@ -155,7 +155,7 @@ class XmlContext extends Context {
 		for ($i = 0; $i < $children->length; ++$i) {
 			$child = $children->item($i);
 			if ($child->tagName != 'entry') {
-				throw new PeanutException("unexpected tag \²$child->tagName\"");
+				throw new PeanutException("unexpected tag \"$child->tagName\"");
 			}
 			list($key, $value) = $this->parseMapEntryNode($child);
 			$map[$key] = $value;
