@@ -24,9 +24,21 @@ class Factory {
 		$this->context = $cx;
 	}
 	function createPeanut() {
-		$refClass = new \ReflectionClass($this->descriptor->getClass());
+		$fc = $this->descriptor->getFactoryClass();
+		$class = $this->descriptor->getClass();
+		if ($fc == null) {
+			$refClass = new \ReflectionClass($class);
+		}
+		else {
+			$refClass = new \ReflectionClass($fc);
+		}
 		try {
 			$instance = $this->createInstance($refClass);
+			if (!is_a($instance, $class)) {
+				$actual = get_class($instance);
+				throw new PeanutException(
+					"expected object of type \"$class\" but got \"$actual\"");
+			}
 			$this->populate($instance);
 		}
 		catch (\ReflectionException $e) {
@@ -65,15 +77,17 @@ class Factory {
 					"is undefined in class \"{$class->getName()}\"");
 			}
 			$method = $class->getMethod($factoryMethod);
-			if (!$method->isStatic()) {
-				throw new PeanutException("cannot use non-static method " . 
-					"\"$factoryMethod\" as factory");
-			}
 		}
 		
-		$numReqParams = $method->getNumberOfRequiredParameters();
-		$numParams = $method->getNumberOfParameters();
+		$paramMethod = $method;
+		if ($factoryMethod != null && !$method->isStatic()) {
+			$paramMethod = $class->getConstructor();
+		}
+		
+		$numReqParams = $paramMethod->getNumberOfRequiredParameters();
+		$numParams = $paramMethod->getNumberOfParameters();
 		$numPeanutParams = $this->descriptor->getParamCount();
+		
 		if ($numPeanutParams < $numReqParams || $numPeanutParams > $numParams) {
 			throw new PeanutException(sprintf(
 				'method "%s" takes between %d and %d parameters but ' . 
@@ -91,7 +105,13 @@ class Factory {
 			return $class->newInstanceArgs($params);
 		}
 		else {
-			return $method->invokeArgs(null, $params);	
+			if (!$method->isStatic()) {
+				$instance = $class->newInstanceArgs($params);
+				return $method->invoke($instance);
+			}
+			else {
+				return $method->invokeArgs(null, $params);
+			}	
 		}
 	}
 	

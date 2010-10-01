@@ -96,12 +96,24 @@ class DescriptorTest extends TestCase {
 	}
 	
 	function testSample4FactoryClass() {
-		$desc = $this->createPeanut('foo', 'peanut\Sample4');
+		$desc = $this->createPeanut('foo', 'peanut\Sample1');
 		$desc->setFactoryMethod('factory');
+		$desc->setFactoryClass('peanut\Sample4');
 		$desc->setProperty('bar', 'baz');
 		$sample1 = $this->getPeanut('foo');
 		$this->assertTrue($sample1 instanceof Sample1);
 		$this->assertEquals('baz', $sample1->getBar());
+	}
+	
+	function testSample5FactoryClass() {
+		$foo = $this->createPeanut('foo', 'peanut\Sample1');
+		$ds = $this->createPeanut('bar', 'peanut\Sample2');
+		$ds->setFactoryClass('peanut\Sample5');
+		$ds->setFactoryMethod('factory');
+		$ds->addParam(new DescriptorRef('foo'));
+		$sample2 = $this->getPeanut('bar');
+		$this->assertTrue($sample2 instanceof Sample2);
+		$this->assertEquals($this->getPeanut('foo'), $sample2->getBar());
 	}
 	
 	function testPeanutType() {

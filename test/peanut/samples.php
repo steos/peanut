@@ -48,3 +48,13 @@ class Sample4 {
 		return new Sample1();
 	}
 }
+
+class Sample5 {
+	private $bar;
+	function __construct(Sample1 $bar) {
+		$this->bar = $bar;
+	}
+	function factory() {
+		return new Sample2($this->bar);
+	}
+}

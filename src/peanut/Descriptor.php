@@ -23,6 +23,7 @@ class Descriptor {
 	private $id;
 	private $class;
 	private $factoryMethod;
+	private $factoryClass;
 	private $params;
 	private $properties;
 	private $instance;
@@ -31,6 +32,7 @@ class Descriptor {
 		$this->id = $id;
 		$this->class = $class;
 		$this->factoryMethod = null;
+		$this->factoryClass = null;
 		$this->params = array();
 		$this->properties = array();
 		$this->instance = null;
@@ -39,6 +41,14 @@ class Descriptor {
 	
 	function setFactoryMethod($method) {
 		$this->factoryMethod = $method;
+	}
+	
+	function setFactoryClass($class) {
+		$this->factoryClass = $class;
+	}
+	
+	function getFactoryClass() {
+		return $this->factoryClass;
 	}
 	
 	function addParam($param) {

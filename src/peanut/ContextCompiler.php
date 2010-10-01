@@ -60,12 +60,16 @@ class ContextCompiler {
 		$node = new \stdClass;
 		$node->name = $varName;
 		$fm = $ds->getFactoryMethod();
+		$fc = $ds->getFactoryClass();
+		if ($fc == null) {
+			$fc = $class;
+		}
 		
 		if ($fm == null) {
-			$node->ctor = "new $class";
+			$node->ctor = "new $fc";
 		}
 		else {
-			$node->ctor = "{$class}::$fm";
+			$node->ctor = "{$fc}::$fm";
 		}
 		
 		$node->params = $this->compileParams($ds);

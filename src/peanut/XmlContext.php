@@ -79,6 +79,13 @@ class XmlContext extends Context {
 		if ($node->hasAttribute('factory')) {
 			$descriptor->setFactoryMethod($node->getAttribute('factory'));
 		}
+		if ($node->hasAttribute('factoryClass')) {
+			if ($descriptor->getFactoryMethod() == null) {
+				throw new PeanutException("the attribute \"factoryClass\" " .
+					"cannot exist without the \"factory\" attribute");
+			}
+			$descriptor->setFactoryClass($node->getAttribute('factoryClass'));
+		}
 		$children = $node->childNodes;
 		for ($i = 0; $i < $children->length; ++$i) {
 			$this->parsePeanutChildNode($children->item($i), $descriptor);

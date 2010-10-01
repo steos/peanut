@@ -38,7 +38,8 @@
 	
 	<peanut id="lorem" class="peanut\Sample3" factory="factory"/>
 	
-	<peanut id="ipsum" class="peanut\Sample4" factory="factory">
+	<peanut id="ipsum" class="peanut\Sample1" 
+		factoryClass="peanut\Sample4" factory="factory">
 		<property name="bar">foobar</property>
 	</peanut>
 	
