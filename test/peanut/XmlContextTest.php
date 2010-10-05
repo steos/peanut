@@ -65,4 +65,11 @@ XML;
 		$obj = $cx->getPeanutInstance('foo');
 		$this->assertEquals('foobar', $obj->getBar());
 	}
+	
+	function testInlinePrototypePeanut() {
+		$cx = XmlContext::fromFile(
+			"$this->resourceDir/sample-inline-prototypes.xml");
+		$this->assertEquals('foobar', $cx->foo->getBar()->getBar());
+		$this->assertEquals('lorem', $cx->bar->getBar()->getBar());
+	}
 }

@@ -20,7 +20,7 @@ class XmlContext extends Context {
 	private $file;
 	private $version;
 	private $encoding;
-	
+	private $lastId;
 	static function fromFile($file, $version = '1.0', $enc = 'UTF-8') {
 		$dom = new \DOMDocument($version, $enc);
 		$dom->load($file, self::LIBXML_FLAGS());
@@ -42,6 +42,7 @@ class XmlContext extends Context {
 	
 	function __construct(\DOMDocument $dom) {
 		parent::__construct();
+		$this->lastId = -1;
 		$this->dom = $dom;
 		$this->load();
 		$this->initEagerPeanuts();
@@ -67,7 +68,7 @@ class XmlContext extends Context {
 			throw new PeanutException("missing required \"class\" attribute");
 		}
 		if (!$id = $node->getAttribute('id')) {
-			$id = uniqid();
+			$id = '_' . (++$this->lastId);
 		}
 		$type = $node->getAttribute('type');
 		if (!$type || $type == 'singleton') {
@@ -150,6 +151,11 @@ class XmlContext extends Context {
 				return $this->parseListNode($node);
 			case 'map':
 				return $this->parseMapNode($node);
+			case 'peanut':
+				$ds = $this->parsePeanutNode($node);
+				$this->descriptors[$ds->getId()] = $ds;
+				$ref = new DescriptorRef($ds->getId());
+				return $ref;
 			default:
 				throw new PeanutException("unknown tag \"$node->tagName\"");
 		}

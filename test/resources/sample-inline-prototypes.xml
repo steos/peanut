@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<peanuts>
+	<peanut id="foo" class="peanut\Sample1">
+		<property name="bar">
+			<peanut class="peanut\Sample1">
+				<property name="bar">foobar</property>
+			</peanut>
+		</property>
+	</peanut>
+	<peanut id="bar" class="peanut\Sample1">
+		<property name="bar">
+			<peanut class="peanut\Sample1">
+				<property name="bar">lorem</property>
+			</peanut>
+		</property>
+	</peanut>
+</peanuts>

@@ -71,4 +71,25 @@ PHP;
 PHP;
 		$this->assertEquals($ex, stream_get_contents($stream, -1, 0));
 	}
+	
+	function testInlinePrototypePeanuts() {
+		$cx = XmlContext::fromFile(
+			"$this->resourceDir/sample-inline-prototypes.xml");
+		$compiler = new ContextCompiler($cx);
+		$stream = fopen('php://temp', 'w');
+		$compiler->compile($stream);
+		
+		$ex = <<<PHP
+\$_0 = new peanut\Sample1();
+\$_0->setBar('foobar');
+\$foo = new peanut\Sample1();
+\$foo->setBar(\$_0);
+\$_1 = new peanut\Sample1();
+\$_1->setBar('lorem');
+\$bar = new peanut\Sample1();
+\$bar->setBar(\$_1);
+
+PHP;
+		$this->assertEquals($ex, stream_get_contents($stream, -1, 0));
+	}
 }
