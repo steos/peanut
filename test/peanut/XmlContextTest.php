@@ -8,6 +8,12 @@ require_once 'peanut/Context.php';
 require_once 'peanut/XmlContext.php';
 require_once 'peanut/samples.php';
 
+class XmlContextWrapper extends XmlContext {
+	function getPeanutInstance($id) {
+		return @$this->peanuts[$id];
+	}
+}
+
 class XmlContextTest extends TestCase {
 	function testSample1() {
 		$cx = XmlContext::fromFile($this->resourceDir . '/sample1.xml');
@@ -42,5 +48,21 @@ XML;
 		$cx = XmlContext::fromString($xml);
 		$iter = $cx->getIterator();
 		$this->assertEquals(1, $iter->count());
+	}
+	
+	function testEagerPeanut() {
+		$xml = <<<XML
+<peanuts>
+	<peanut id="foo" class="peanut\Sample1" lazy="false">
+		<property name="bar">foobar</property>
+	</peanut>
+</peanuts>
+XML;
+		$cx = XmlContextWrapper::fromString($xml);
+		$ds = $cx->getDescriptor('foo');
+		$this->assertFalse($ds->isLazy());
+		
+		$obj = $cx->getPeanutInstance('foo');
+		$this->assertEquals('foobar', $obj->getBar());
 	}
 }

@@ -25,7 +25,17 @@ require_once 'peanut/TestCase.php';
 require_once 'peanut/PeanutException.php';
 require_once 'peanut/samples.php';
 
-class DummyContext extends Context {}
+class DummyContext extends Context {
+	function hasPeanutInstance($id) {
+		return isset($this->peanuts[$id]);
+	}
+	function getPeanutInstance($id) {
+		return @$this->peanuts[$id];
+	}
+	function init() {
+		$this->initEagerPeanuts();
+	}
+}
 
 class DescriptorTest extends TestCase {
 	private $context;
@@ -136,6 +146,15 @@ class DescriptorTest extends TestCase {
 		$desc->setProperty('bar', new DescriptorRef('bar'));
 		$obj1 = $this->getPeanut('foo');
 		$this->assertEquals($this->getPeanut('bar'), $obj1->getBar());
+	}
+	
+	function testEagerPeanut() {
+		$ds = $this->createPeanut('foo', 'peanut\Sample1');
+		$ds->setLazy(false);
+		$this->context[] = $ds;
+		$this->assertFalse($this->context->hasPeanutInstance('foo'));
+		$this->context->init();
+		$this->assertTrue($this->context->hasPeanutInstance('foo'));
 	}
 	
 	/**

@@ -27,6 +27,7 @@ class Descriptor {
 	private $params;
 	private $properties;
 	private $instance;
+	private $lazy;
 	
 	function __construct($id, $class, $type = self::TYPE_SINGLETON) {
 		$this->id = $id;
@@ -37,6 +38,15 @@ class Descriptor {
 		$this->properties = array();
 		$this->instance = null;
 		$this->type = $type;
+		$this->lazy = true;
+	}
+	
+	function setLazy($lazy) {
+		$this->lazy = $lazy;
+	}
+	
+	function isLazy() {
+		return $this->lazy;
 	}
 	
 	function setFactoryMethod($method) {

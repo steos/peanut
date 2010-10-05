@@ -17,11 +17,24 @@
 namespace peanut;
 
 abstract class Context implements \ArrayAccess, \IteratorAggregate {
-	private $peanuts;
+	protected $peanuts;
 	protected $descriptors;
 	function __construct() {
 		$this->peanuts = array();
 		$this->descriptors = array();
+	}
+	protected function initEagerPeanuts() {
+		foreach ($this->descriptors as &$ds) {
+			if (!$ds->isLazy() 
+				&& $ds->getType() == Descriptor::TYPE_SINGLETON) {
+				$this->peanuts[$ds->getId()] = $this->createPeanut($ds);
+			}
+		}
+	}
+	protected function createPeanut(Descriptor $ds) {
+		$factory = new Factory($ds, $this);
+		$peanut = $factory->createPeanut($ds, $this);
+		return $peanut;
 	}
 	function offsetGet($name) {
 		$ds = @$this->descriptors[$name];
@@ -30,8 +43,7 @@ abstract class Context implements \ArrayAccess, \IteratorAggregate {
 				&& isset($this->peanuts[$name])) {
 				return $this->peanuts[$name];
 			}
-			$factory = new Factory($ds, $this);
-			$peanut = $factory->createPeanut($ds, $this);
+			$peanut = $this->createPeanut($ds);
 			if ($ds->getType() == Descriptor::TYPE_SINGLETON) {
 				$this->peanuts[$ds->getId()] = $peanut;
 			}

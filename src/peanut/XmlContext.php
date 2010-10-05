@@ -24,13 +24,13 @@ class XmlContext extends Context {
 	static function fromFile($file, $version = '1.0', $enc = 'UTF-8') {
 		$dom = new \DOMDocument($version, $enc);
 		$dom->load($file, self::LIBXML_FLAGS());
-		return new self($dom);
+		return new static($dom);
 	}
 	
 	static function fromString($xml, $version = '1.0', $enc = 'UTF-8') {
 		$dom = new \DOMDocument($version, $enc);
 		$dom->loadXML($xml, self::LIBXML_FLAGS());
-		return new self($dom);
+		return new static($dom);
 	}
 	
 	/* 
@@ -44,6 +44,7 @@ class XmlContext extends Context {
 		parent::__construct();
 		$this->dom = $dom;
 		$this->load();
+		$this->initEagerPeanuts();
 	}
 	
 	private function load() {
@@ -85,6 +86,10 @@ class XmlContext extends Context {
 					"cannot exist without the \"factory\" attribute");
 			}
 			$descriptor->setFactoryClass($node->getAttribute('factoryClass'));
+		}
+		if ($node->hasAttribute('lazy')) {
+			$lazy = $node->getAttribute('lazy') == 'false' ? false : true;
+			$descriptor->setLazy($lazy);
 		}
 		$children = $node->childNodes;
 		for ($i = 0; $i < $children->length; ++$i) {
