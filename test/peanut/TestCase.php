@@ -16,7 +16,8 @@
 
 namespace peanut;
 
-\PHPUnit_Util_Filter::addDirectoryToFilter(dirname(__FILE__) . '/../', '.php');
+\PHP_CodeCoverage_Filter::getInstance()->addDirectoryToWhitelist(
+	dirname(__FILE__) . '/../../src', '.php');
 
 abstract class TestCase extends \PHPUnit_Framework_TestCase {
 	protected $resourceDir;
